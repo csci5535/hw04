@@ -1,0 +1,208 @@
+\documentclass[11pt]{exam}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{mathptmx}
+
+\usepackage{xspace}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{mathpartir} %% for inference rules
+
+%% Listings
+\usepackage{listings}
+\lstdefinestyle{default}{%
+  basicstyle=\ttfamily,%
+  commentstyle=\sl,%
+  keywordstyle=\bf,%
+  columns=fullflexible,%
+  keepspaces=true,%
+  mathescape%
+}
+\lstset{style=default}
+\newcommand{\ocaml}[1]{\lstset{language=[Objective]Caml}\lstinline~#1~}
+\lstnewenvironment{OCaml}
+  {\lstset{language=[Objective]Caml}}
+  {}
+
+\title{Assignment 4: \\
+       Program Verification and Implementation}
+\date{}
+
+\author{YOUR NAME}
+
+%% Number questions by section
+\renewcommand{\thequestion}{\thesection.\arabic{question}}
+
+%% toggle math mode and text mode for tabular and array
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+
+\newcommand{\fmtkw}[1]{\mathtt{#1}}
+
+\newcommand{\Typ}{\ensuremath{\mathsf{Typ}}}
+\newcommand{\typ}{\ensuremath{\mathit{\tau}}}
+\newcommand{\numtyp}{\ensuremath{\fmtkw{num}}}
+\newcommand{\booltyp}{\ensuremath{\fmtkw{bool}}}
+
+\newcommand{\Expr}{\ensuremath{\mathsf{Exp}}}
+\newcommand{\expr}{\ensuremath{\mathit{e}}}
+
+\newcommand{\addra}[1]{\ensuremath{\fmtkw{addr}[#1]}}
+\newcommand{\addr}{\ensuremath{\mathit{a}}}
+\newcommand{\numa}[1]{\ensuremath{\fmtkw{num}[#1]}}
+\newcommand{\num}{\ensuremath{\mathit{n}}}
+\newcommand{\boola}[1]{\ensuremath{\fmtkw{bool}[#1]}}
+\newcommand{\bool}{\ensuremath{\mathit{b}}}
+\newcommand{\plusa}[2]{\ensuremath{\fmtkw{plus}(#1; #2)}}
+\newcommand{\plusc}[2]{\ensuremath{#1 \mathbin{\fmtkw{+}} #2}}
+\newcommand{\timesa}[2]{\ensuremath{\fmtkw{times}(#1; #2)}}
+\newcommand{\timesc}[2]{\ensuremath{#1 \mathbin{\fmtkw{*}} #2}}
+\newcommand{\eqa}[2]{\ensuremath{\fmtkw{eq}(#1; #2)}}
+\newcommand{\eqc}[2]{\ensuremath{#1 \mathrel{\fmtkw{==}} #2}}
+\newcommand{\lea}[2]{\ensuremath{\fmtkw{le}(#1; #2)}}
+\newcommand{\lec}[2]{\ensuremath{#1 \mathrel{\fmtkw{<=}} #2}}
+\newcommand{\nota}[1]{\ensuremath{\fmtkw{not}(#1)}}
+\newcommand{\notc}[1]{\ensuremath{\mathord{\fmtkw{!}}#1}}
+\newcommand{\anda}[2]{\ensuremath{\fmtkw{and}(#1; #2)}}
+\newcommand{\andc}[2]{\ensuremath{#1 \mathbin{\fmtkw{\&\&}} #2}}
+\newcommand{\ora}[2]{\ensuremath{\fmtkw{or}(#1; #2)}}
+\newcommand{\orc}[2]{\ensuremath{#1 \mathbin{\fmtkw{||}} #2}}
+
+\newcommand{\Cmd}{\ensuremath{\mathsf{Cmd}}}
+\newcommand{\cmd}{\ensuremath{\mathit{c}}}
+\newcommand{\skipa}{\ensuremath{\fmtkw{skip}}}
+\newcommand{\seta}[2]{\ensuremath{\fmtkw{set}[#1](#2)}}
+\newcommand{\setc}[2]{\ensuremath{#1 \mathrel{\fmtkw{:=}} #2}}
+\newcommand{\seqa}[2]{\ensuremath{\fmtkw{seq}(#1; #2)}}
+\newcommand{\seqc}[2]{\ensuremath{#1\fmtkw{;}\;#2}}
+\newcommand{\ifa}[3]{\ensuremath{\fmtkw{if}(#1; #2; #3)}}
+\newcommand{\ifc}[3]{\ensuremath{\fmtkw{if}\;#1\;\fmtkw{then}\;#2\;\fmtkw{else}\;#3}}
+\newcommand{\whilea}[2]{\ensuremath{\fmtkw{while}(#1; #2)}}
+\newcommand{\whilec}[2]{\ensuremath{\fmtkw{while}\;#1\;\fmtkw{do}\;#2}}
+\newcommand{\dowhilea}[2]{\ensuremath{\fmtkw{do}(#1; #2)}}
+\newcommand{\dowhilec}[2]{\ensuremath{\fmtkw{do}\;#1\;\fmtkw{while}\;#2}}
+
+\newcommand{\Addr}{\ensuremath{\mathsf{Addr}}}
+
+\newcommand{\val}{\ensuremath{\mathit{v}}}
+\newcommand{\Val}{\ensuremath{\mathsf{Val}}}
+
+\newcommand{\store}{\ensuremath{\sigma}}
+\newcommand{\Store}{\ensuremath{\mathsf{Store}}}
+\newcommand{\storelet}[2]{\ensuremath{#1 \hookrightarrow #2}}
+\newcommand{\xstore}[3]{#1, \storelet{#2}{#3}}
+
+\newcommand{\kframe}{\ensuremath{f}}
+\newcommand{\kfhole}{\ensuremath{\text{---}}}
+
+\newcommand{\kstack}{\ensuremath{k}}
+\newcommand{\kstkemp}{\ensuremath{\epsilon}}
+\newcommand{\kstkcons}[2]{\ensuremath{#1; #2}}
+
+\newcommand{\kstate}{\ensuremath{s}}
+\newcommand{\kseval}[2]{\ensuremath{#1 \triangleright #2}}
+\newcommand{\ksreturn}[2]{\ensuremath{#1 \triangleleft #2}}
+
+\newcommand{\IMP}{\textbf{\textsf{IMP}}\xspace}
+
+\newcommand{\E}{\textbf{\textsf{E}}\xspace}
+\newcommand{\T}{\textbf{\textsf{T}}\xspace}
+\renewcommand{\P}{\textbf{\textsf{P}}\xspace}
+\renewcommand{\S}{\textbf{\textsf{S}}\xspace}
+\newcommand{\ET}{\textbf{\textsf{ET}}\xspace}
+\newcommand{\ETP}{\textbf{\textsf{ETP}}\xspace}
+\newcommand{\ETPS}{\textbf{\textsf{ETPS}}\xspace}
+\newcommand{\PCF}{\textbf{\textsf{PCF}}\xspace}
+\newcommand{\FPC}{\textbf{\textsf{FPC}}\xspace}
+\newcommand{\F}{\textbf{\textsf{F}}\xspace}
+\newcommand{\K}{\textbf{\textsf{K}}\xspace}
+\newcommand{\XPCF}{\textbf{\textsf{XPCF}}\xspace}
+
+\newcommand{\state}[2]{\langle #1, #2 \rangle}
+
+\newcommand{\hasType}[2]{\ensuremath{#1 : #2}}
+\newcommand{\hypJ}[2]{\ensuremath{#1 \vdash #2}}
+\newcommand{\isOk}[1]{\ensuremath{#1\;\mathsf{ok}}}
+\newcommand{\eval}[2]{\ensuremath{#1 \Downarrow #2}}
+\newcommand{\step}[2]{\ensuremath{#1 \longmapsto #2}}
+\newcommand{\stepspap}[3][\typ]{\ensuremath{#2 \hookrightarrow_{:#1} #3}}
+\newcommand{\stepspapok}[2]{\ensuremath{#1 \hookrightarrow_{\mathsf{ok}} #2}}
+\newcommand{\isVal}[1]{\ensuremath{#1\;\mathsf{val}}}
+\newcommand{\isFinal}[1]{\ensuremath{#1\;\mathsf{final}}}
+\newcommand{\isType}[1]{\ensuremath{#1\;\mathsf{type}}}
+\newcommand{\isFrame}[1]{\ensuremath{#1\;\mathsf{frame}}}
+\newcommand{\frameType}[3]{\hasType{#1}{#2 \rightsquigarrow #3}}
+\newcommand{\stackType}[2]{\ensuremath{#1 \mathrel{\mathord{\triangleright}\mathord{:}} #2}}
+
+\newcommand{\even}{\operatorname{even}}
+
+\newcommand{\pcorrect}[3]{\ensuremath{\big\{\,#1\,\big\}\;#2\;\big\{\,#3\,\big\}}}
+
+\pagestyle{plain}
+\begin{document}
+\maketitle
+
+\section{Axiomatic Semantics: \IMP}
+
+\begin{questions}
+  \question
+\end{questions}
+
+\section{Abstract Machines and Control Flow}
+
+\begin{questions}
+  \question
+\end{questions}
+
+\section{Final Project Preparation: Start Paper Drafting}
+
+\begin{questions}
+  \question
+\end{questions}
+
+%% Appendix
+\clearpage
+\appendix
+
+\section{Syntax of \IMP}
+
+\[\begin{array}{lrcllL}
+\Typ & \typ & ::= & \numtyp & \numtyp & numbers
+\\
+&&& \booltyp & \booltyp & booleans
+\\
+\Expr & \expr & ::= & \addra{\addr} & \addr & addresses (or ``assignables'') 
+\\ 
+&&& \numa{\num} & \num & numeral
+\\
+&&& \boola{\bool} & \bool & boolean
+\\
+&&& \plusa{\expr_1}{\expr_2} & \plusc{\expr_1}{\expr_2} & addition
+\\
+&&& \timesa{\expr_1}{\expr_2} & \timesc{\expr_1}{\expr_2} & multiplication
+\\
+&&& \eqa{\expr_1}{\expr_2} & \eqc{\expr_1}{\expr_2} & equal
+\\
+&&& \lea{\expr_1}{\expr_2} & \lec{\expr_1}{\expr_2} & less-than-or-equal
+\\
+&&& \nota{\expr_1} & \notc{\expr_1} & negation
+\\
+&&& \anda{\expr_1}{\expr_2} & \andc{\expr_1}{\expr_2} & conjunction
+\\
+&&& \ora{\expr_1}{\expr_2} & \orc{\expr_1}{\expr_2} & disjunction
+\\
+\Cmd & \cmd & ::= & \seta{\addr}{\expr} & \setc{\addr}{\expr} & assignment
+\\
+&&& \skipa & \skipa & skip
+\\
+&&& \seqa{\cmd_1}{\cmd_2} & \seqc{\cmd_1}{\cmd_2} & sequencing
+\\
+&&& \ifa{\expr}{\cmd_1}{\cmd_2} & \ifc{\expr}{\cmd_1}{\cmd_2} & conditional
+\\
+&&& \whilea{\expr}{\cmd_1} & \whilec{\expr}{\cmd_1} & looping
+\\
+\Addr & \addr
+\end{array}\]
+
+\end{document}

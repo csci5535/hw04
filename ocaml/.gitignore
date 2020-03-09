@@ -1,0 +1,15 @@
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+
+# dune working directory
+_build/
+
+# merlin
+.merlin
