@@ -1,0 +1,368 @@
+\documentclass[12pt]{exam}
+
+\usepackage{fourier}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+
+\usepackage{hyperref}
+\usepackage{xspace}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathpartir}
+\usepackage{url}
+
+%% Listings
+\usepackage{listings}
+\lstdefinestyle{default}{%
+  basicstyle=\ttfamily,%
+  commentstyle=\sl,%
+  keywordstyle=\bf,%
+  columns=fullflexible,%
+  keepspaces=true,%
+  mathescape%
+}
+\lstset{style=default}
+\newcommand{\ocaml}[1]{\lstset{language=[Objective]Caml}\lstinline~#1~}
+\lstnewenvironment{OCaml}
+  {\lstset{language=[Objective]Caml}}
+	{}
+	
+% Power Set (modified from http://gene.science.uva.nl/~sjagerde/latex/)
+\DeclareSymbolFont{eulerletters}{U}{eur}{m}{n}%
+\DeclareMathSymbol{\PowersetSym}{\mathord}{eulerletters}{"7D}%
+\newsavebox{\powersetbox}
+\sbox{\powersetbox}{\mbox{\large\ensuremath{\PowersetSym}}}
+\providecommand{\powerset}{\mathopen{\usebox{\powersetbox}}}
+
+%% Number questions by section
+\renewcommand{\thequestion}{\thesection.\arabic{question}}
+
+%% toggle math mode and text mode for tabular and array
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+
+\newcommand{\fmtkw}[1]{\mathtt{#1}}
+
+\newcommand{\Typ}{\ensuremath{\mathsf{Typ}}}
+\newcommand{\typ}{\ensuremath{\mathit{\tau}}}
+\newcommand{\numtyp}{\ensuremath{\fmtkw{num}}}
+\newcommand{\booltyp}{\ensuremath{\fmtkw{bool}}}
+
+\newcommand{\Expr}{\ensuremath{\mathsf{Exp}}}
+\newcommand{\expr}{\ensuremath{\mathit{e}}}
+
+\newcommand{\addra}[1]{\ensuremath{\fmtkw{addr}[#1]}}
+\newcommand{\addr}{\ensuremath{\mathit{a}}}
+\newcommand{\numa}[1]{\ensuremath{\fmtkw{num}[#1]}}
+\newcommand{\num}{\ensuremath{\mathit{n}}}
+\newcommand{\boola}[1]{\ensuremath{\fmtkw{bool}[#1]}}
+\newcommand{\bool}{\ensuremath{\mathit{b}}}
+\newcommand{\plusa}[2]{\ensuremath{\fmtkw{plus}(#1; #2)}}
+\newcommand{\plusc}[2]{\ensuremath{#1 \mathbin{\fmtkw{+}} #2}}
+\newcommand{\timesa}[2]{\ensuremath{\fmtkw{times}(#1; #2)}}
+\newcommand{\timesc}[2]{\ensuremath{#1 \mathbin{\fmtkw{*}} #2}}
+\newcommand{\eqa}[2]{\ensuremath{\fmtkw{eq}(#1; #2)}}
+\newcommand{\eqc}[2]{\ensuremath{#1 \mathrel{\fmtkw{==}} #2}}
+\newcommand{\lea}[2]{\ensuremath{\fmtkw{le}(#1; #2)}}
+\newcommand{\lec}[2]{\ensuremath{#1 \mathrel{\fmtkw{<=}} #2}}
+\newcommand{\nota}[1]{\ensuremath{\fmtkw{not}(#1)}}
+\newcommand{\notc}[1]{\ensuremath{\mathord{\fmtkw{!}}#1}}
+\newcommand{\anda}[2]{\ensuremath{\fmtkw{and}(#1; #2)}}
+\newcommand{\andc}[2]{\ensuremath{#1 \mathbin{\fmtkw{\&\&}} #2}}
+\newcommand{\ora}[2]{\ensuremath{\fmtkw{or}(#1; #2)}}
+\newcommand{\orc}[2]{\ensuremath{#1 \mathbin{\fmtkw{||}} #2}}
+
+\newcommand{\Cmd}{\ensuremath{\mathsf{Cmd}}}
+\newcommand{\cmd}{\ensuremath{\mathit{c}}}
+\newcommand{\skipa}{\ensuremath{\fmtkw{skip}}}
+\newcommand{\seta}[2]{\ensuremath{\fmtkw{set}[#1](#2)}}
+\newcommand{\setc}[2]{\ensuremath{#1 \mathrel{\fmtkw{:=}} #2}}
+\newcommand{\seqa}[2]{\ensuremath{\fmtkw{seq}(#1; #2)}}
+\newcommand{\seqc}[2]{\ensuremath{#1\fmtkw{;}\;#2}}
+\newcommand{\ifa}[3]{\ensuremath{\fmtkw{if}(#1; #2; #3)}}
+\newcommand{\ifc}[3]{\ensuremath{\fmtkw{if}\;#1\;\fmtkw{then}\;#2\;\fmtkw{else}\;#3}}
+\newcommand{\whilea}[2]{\ensuremath{\fmtkw{while}(#1; #2)}}
+\newcommand{\whilec}[2]{\ensuremath{\fmtkw{while}\;#1\;\fmtkw{do}\;#2}}
+\newcommand{\dowhilea}[2]{\ensuremath{\fmtkw{do}(#1; #2)}}
+\newcommand{\dowhilec}[2]{\ensuremath{\fmtkw{do}\;#1\;\fmtkw{while}\;#2}}
+
+\newcommand{\Addr}{\ensuremath{\mathsf{Addr}}}
+
+\newcommand{\val}{\ensuremath{\mathit{v}}}
+\newcommand{\Val}{\ensuremath{\mathsf{Val}}}
+
+\newcommand{\store}{\ensuremath{\sigma}}
+\newcommand{\Store}{\ensuremath{\mathsf{Store}}}
+\newcommand{\storelet}[2]{\ensuremath{#1 \hookrightarrow #2}}
+\newcommand{\xstore}[3]{#1, \storelet{#2}{#3}}
+
+\newcommand{\kframe}{\ensuremath{f}}
+\newcommand{\kfhole}{\ensuremath{\text{---}}}
+
+\newcommand{\kstack}{\ensuremath{k}}
+\newcommand{\kstkemp}{\ensuremath{\epsilon}}
+\newcommand{\kstkcons}[2]{\ensuremath{#1; #2}}
+
+\newcommand{\kstate}{\ensuremath{s}}
+\newcommand{\kseval}[2]{\ensuremath{#1 \triangleright #2}}
+\newcommand{\ksreturn}[2]{\ensuremath{#1 \triangleleft #2}}
+
+\newcommand{\assn}{\ensuremath{A}}
+\newcommand{\Assn}{\ensuremath{\mathsf{Assn}}}
+
+\newcommand{\IMP}{\textbf{\textsf{IMP}}\xspace}
+
+\newcommand{\E}{\textbf{\textsf{E}}\xspace}
+\newcommand{\T}{\textbf{\textsf{T}}\xspace}
+\renewcommand{\P}{\textbf{\textsf{P}}\xspace}
+\renewcommand{\S}{\textbf{\textsf{S}}\xspace}
+\newcommand{\ET}{\textbf{\textsf{ET}}\xspace}
+\newcommand{\ETP}{\textbf{\textsf{ETP}}\xspace}
+\newcommand{\ETPS}{\textbf{\textsf{ETPS}}\xspace}
+\newcommand{\PCF}{\textbf{\textsf{PCF}}\xspace}
+\newcommand{\FPC}{\textbf{\textsf{FPC}}\xspace}
+\newcommand{\F}{\textbf{\textsf{F}}\xspace}
+\newcommand{\K}{\textbf{\textsf{K}}\xspace}
+\newcommand{\XPCF}{\textbf{\textsf{XPCF}}\xspace}
+
+\newcommand{\state}[2]{\langle #1, #2 \rangle}
+
+\newcommand{\hasType}[2]{\ensuremath{#1 : #2}}
+\newcommand{\hypJ}[2]{\ensuremath{#1 \vdash #2}}
+\newcommand{\isOk}[1]{\ensuremath{#1\;\mathsf{ok}}}
+\newcommand{\eval}[2]{\ensuremath{#1 \Downarrow #2}}
+\newcommand{\step}[2]{\ensuremath{#1 \longmapsto #2}}
+\newcommand{\stepspap}[3][\typ]{\ensuremath{#2 \hookrightarrow_{:#1} #3}}
+\newcommand{\stepspapok}[2]{\ensuremath{#1 \hookrightarrow_{\mathsf{ok}} #2}}
+\newcommand{\isVal}[1]{\ensuremath{#1\;\mathsf{val}}}
+\newcommand{\isInitial}[1]{\ensuremath{#1\;\mathsf{initial}}}
+\newcommand{\isFinal}[1]{\ensuremath{#1\;\mathsf{final}}}
+\newcommand{\isType}[1]{\ensuremath{#1\;\mathsf{type}}}
+\newcommand{\isFrame}[1]{\ensuremath{#1\;\mathsf{frame}}}
+\newcommand{\frameType}[3]{\hasType{#1}{#2 \rightsquigarrow #3}}
+\newcommand{\stackType}[2]{\ensuremath{#1 \mathrel{\mathord{\triangleleft}\mathord{:}} #2}}
+
+\newcommand{\even}{\operatorname{even}}
+
+\newcommand{\pcorrect}[3]{\ensuremath{\big\{\,#1\,\big\}\;#2\;\big\{\,#3\,\big\}}}
+
+\runningfooter{}{\thepage}{}
+\title{CSCI 5535: Homework Assignment 4: Program Verification and Implementation}
+\date{Fall 2023: Due Friday, November 17, 2023}
+\author{}
+
+\begin{document}
+\maketitle
+
+This homework has two parts.
+%
+The first considers a deductive system for thinking about program correctness.
+%
+The second considers a semantics that is closer to a real machine implementation.
+
+Recall the evaluation guideline from the course syllabus.
+\begin{quote}\em
+  Both your ideas and also the clarity with which they are expressed
+  matter---both in your English prose and your code!
+
+  We will consider the following criteria in our grading: 
+  \begin{itemize}
+    \item \emph{How well does your submission answer the questions?}
+      For example, a common mistake is to give an example when a question
+      asks for an explanation.  An example may be useful in your
+      explanation, but it should not take the place of the explanation.
+    \item \emph{How clear is your submission?}  If we cannot
+      understand what you are trying to say, then we cannot give you
+      points for it.  Try reading your answer aloud to yourself or a
+      friend; this technique is often a great way to identify holes in
+      your reasoning.  For code, not every program that "works"
+      deserves full credit. We must be able to read and understand
+      your intent.  Make sure you state any preconditions or
+      invariants for your functions.
+  \end{itemize}
+\end{quote}
+
+\paragraph{Submission Instructions.}
+
+Typesetting is preferred but scanned, clearly legible handwritten write-ups are acceptable. Please no other formats---no
+\texttt{.doc} or \texttt{.docx}. You may use whatever tool you wish (e.g., \LaTeX, Word, markdown, plain text, pencil+paper) as long as it is legibly
+converted into a \texttt{pdf}.
+
+\section{Axiomatic Semantics: \IMP}
+
+We continue to consider the same language \IMP with the syntax chart:
+\[\begin{array}{lrcllL}
+\Typ & \typ & ::= & \numtyp & \numtyp & numbers
+\\
+&&& \booltyp & \booltyp & booleans
+\\
+\Expr & \expr & ::= & \addra{\addr} & \addr & addresses (or ``assignables'') 
+\\ 
+&&& \numa{\num} & \num & numeral
+\\
+&&& \boola{\bool} & \bool & boolean
+\\
+&&& \plusa{\expr_1}{\expr_2} & \plusc{\expr_1}{\expr_2} & addition
+\\
+&&& \timesa{\expr_1}{\expr_2} & \timesc{\expr_1}{\expr_2} & multiplication
+\\
+&&& \eqa{\expr_1}{\expr_2} & \eqc{\expr_1}{\expr_2} & equal
+\\
+&&& \lea{\expr_1}{\expr_2} & \lec{\expr_1}{\expr_2} & less-than-or-equal
+\\
+&&& \nota{\expr_1} & \notc{\expr_1} & negation
+\\
+&&& \anda{\expr_1}{\expr_2} & \andc{\expr_1}{\expr_2} & conjunction
+\\
+&&& \ora{\expr_1}{\expr_2} & \orc{\expr_1}{\expr_2} & disjunction
+\\
+\Cmd & \cmd & ::= & \seta{\addr}{\expr} & \setc{\addr}{\expr} & assignment
+\\
+&&& \skipa & \skipa & skip
+\\
+&&& \seqa{\cmd_1}{\cmd_2} & \seqc{\cmd_1}{\cmd_2} & sequencing
+\\
+&&& \ifa{\expr}{\cmd_1}{\cmd_2} & \ifc{\expr}{\cmd_1}{\cmd_2} & conditional
+\\
+&&& \whilea{\expr}{\cmd_1} & \whilec{\expr}{\cmd_1} & looping
+\\
+\Addr & \addr
+\end{array}\]
+As before, addresses $\addr$ represent static memory store locations and are drawn from some unbounded set $\Addr$ and all memory locations only store numbers. A store $\store$ is thus a mapping from addresses to numbers, written as follows:
+\[\begin{array}{lrcl}
+\Store & \store & ::= & \cdot \mid \xstore{\store}{\addr}{\num}
+\end{array}\]
+
+The semantics of \IMP{} is as a formalized as before operationally, and we consider the Hoare rules for partial correctness as in Chapter 6 of \emph{FSPL}.
+
+\begin{questions}
+\question \textbf{Program Correctness}.  Prove using Hoare rules the following property: if we start the command $\whilec{\expr}{\setc{\addr}{\plusc{\addr}{2}}}$ in a state that satisfies the assertion $\even(\addr)$, then it terminates in a state satisfying $\even(\addr)$. That is, prove the the following judgment:
+\[
+\pcorrect{ \even(\addr) }{ \whilec{\expr}{\setc{\addr}{\plusc{\addr}{2}}} }{ \even(\addr) }
+\]
+Hint: your proof should \emph{not} use induction.
+
+\question \textbf{Hoare Rules}. Consider an extension to \IMP
+\[\begin{array}{rcllL}
+  \cmd & ::= & \dowhilea{\cmd_1}{\expr} & \dowhilec{\cmd_1}{\expr} & at-least-once looping
+\end{array}\]
+with a command for at-least-once looping. Extend the Hoare judgment form
+\(
+  \pcorrect{\assn}{\cmd}{B}
+\)
+for this command.
+\end{questions}
+
+\section{Abstract Machines and Control Flow}
+
+In this section, we will consider a new implementation of language~\PCF based on abstract machines (i.e., \K from Chapter 28 of \emph{PFPL}).
+
+One aspect of a structural small-step operational semantics (as we used in previous assignments) that seems wasteful from an implementation perspective is that we ``forget'' where we are reducing at each step. An abstract machine semantics makes explicit the ``program counter'' in its state.
+
+\begin{questions}
+  \question Give a specification for \K as a call-by-value language. That is, modify the definition of the judgments $\isFrame{\kframe}$ and $\step{\kstate}{\kstate'}$ from Section 28.1 of \emph{PFPL}. You will also need to update the auxiliary frame-typing judgment $\frameType{\kframe}{\typ}{\typ'}$ from Section 28.2 in order to state safety.
+  \question \textbf{Safety}.
+  \begin{parts}
+    \part Prove preservation: if $\isOk{\kstate}$ and $\step{\kstate}{\kstate'}$, then $\isOk{\kstate'}$.
+    \part Prove progress: if $\isOk{\kstate}$, then either $\isFinal{\kstate}$ or $\step{\kstate}{\kstate'}$ for some state $\kstate'$.
+  \end{parts}
+  \question \textbf{Extra Credit: Implementation}.
+  \begin{parts}
+    \part Implement call-by-value \K. You do need not include previously implemented language features (though you may include some of them if you want).
+    
+    First, we have some new syntactic forms:
+    \[\begin{array}{Ll@{\qquad}L}
+      frames & \kframe & \ocaml{type frame} \\
+      stacks & \kstack & \ocaml{type stack = frame list} \\
+      states & \kstate & \ocaml{type state = Eval of stack * exp | Ret of stack * exp}
+    \end{array}\]
+    Then, we will implement functions that define both the static and dynamic semantics of the language.
+    \[\begin{array}{l@{\qquad}L}
+    [\expr'/x]\expr & \ocaml{val subst : exp -> var -> exp -> exp} \\
+    \isVal{\expr} & \ocaml{val is_val : exp -> bool} \\
+    \hypJ{\Delta \Gamma}{\hasType{\expr}{\typ}} & \ocaml{val exp_typ : kindctx -> typctx -> exp -> typ option} \\
+    \step{\kstate}{\kstate'} & \ocaml{val kstep : state -> state} \\
+    \isInitial{\kstate} & \ocaml{val initial : exp -> state} \\
+    \isFinal{\kstate} & \ocaml{val final : exp -> state} \\
+    \isFinal{\kstate} & \ocaml{val is_final : state -> bool} \\
+    \stackType{\kstack}{\typ}  & \ocaml{val stack_typ : stack -> typ option} \\
+    \frameType{\kframe}{\typ}{\typ'}  & \ocaml{val frame_typ : frame -> typ -> typ option} \\
+    \isOk{\kstate} & \ocaml{val is_ok : state -> bool} \\
+    \stepspapok{\kstate}{\kstate'} & \ocaml{val steps_pap : state -> state}
+    \end{array}\]
+    The $\stepspapok{\kstate}{\kstate'}$ is the analogous iterate-step-with-preservation-and-progress for states.
+    \begin{mathpar}
+      \inferrule{
+        \isOk{\kstate}
+        \\
+        \isFinal{\kstate}
+      }{
+        \stepspapok{\kstate}{\kstate}
+      }
+      
+      \inferrule{
+        \isOk{\kstate}
+        \\
+        \step{\kstate}{\kstate'}
+        \\
+        \stepspapok{\kstate'}{\kstate''}
+      }{
+        \stepspapok{\kstate}{\kstate''}
+      }
+    \end{mathpar}
+    \part \textbf{Exceptions}. Extend your \K machine with exceptions as in Section 29.2. You may choose $\fmtkw{nat}$ for the type of the value carried by the exception.
+    \part \textbf{Continuations}. Extend your \K machine with continuations as in Section 30.2. Implementing continuations is independent of implementing exceptions, so you may choose to do either or both. (Technically, you can encode exceptions with continuations.)
+  \end{parts}
+\end{questions}
+
+\section{Final Project Preparation: Start Paper Drafting}
+
+\begin{questions}
+  \question \textbf{Reading Papers}. Follow some citations based on the papers you chose in Homework 2 and read in Homework 3. List at least three cited papers that seems relevant to follow up on. Include a citation along with a URL for each paper. For each of the additional papers, and for each question below, write two concise sentences:
+\begin{parts}
+\part Why did \emph{you} select this cited paper?
+\part What is the relation between the ``main idea'' of this cited paper and the ``main idea'' of the paper that cites it? You may want to skim the introductory and concluding bits of the cited paper along with the related work in the citing paper.
+\end{parts}
+  \question \textbf{Project Repository}. Create a project repository shared with your partner via GitHub classroom. Coordinate so that one person creates the repository, and the other person joins it. Give the link to your project repository here. You may find it more convenient to collaborate on the proposal and paper draft with your partner in your project repo going forward. Just make sure to include the proposal and paper draft into your pdf submission here for our review.
+  \question
+\textbf{Proposal Revision}. Finalize your class project plan.
+%
+Write an updated explanation of your plan (expanding and revising as necessary), and what you hope to accomplish with your project by the end of the semester. That is, on what artifact do you want to be graded?
+
+Here are questions that you should address in your project proposal.
+\begin{parts}
+  \part Define the problem that you will solve as concretely as possible. Provide a scope of expected and potential results. Give a few example programs that exhibit the problem that you are trying to solve.
+  \part What is the general approach that you intend to use to solve the problem?
+  \part Why do you think that approach will solve the problem? What resources (papers, book chapters, etc.) do you plan to base your solution on? Is there one in particular that you plan to follow? What about your solution will be similar? What will be different?
+  \part How do you plan to demonstrate your idea?
+  \part How will you evaluate your idea? What will be the measurement for success?
+\end{parts}
+  \question \textbf{Paper Drafting}. Write a first draft of the following sections of your paper.
+\begin{parts}
+  \part \textbf{Related Work}. Take the papers you have read thus far (from Homeworks 2, 3, and 4) that are relevant to your project and write a draft of your Related Work section. Your Related Work Section should compare-and-contrast your (expected) contribution to the related work it builds on (grouped in categories as appropriate). Your Related Work Section \emph{should not} simply summarize what you have read.
+  \part \textbf{Abstract}. Make an attempt at writing your 4-sentence Abstract, answering the following 4 questions:
+  \begin{enumerate}
+    \item What is the (technical) \emph{problem} you are addressing?
+    \item Why is addressing this problem \emph{important} (i.e., what broader concern motivates solving this problem)?
+    \item Why is solving this problem \emph{hard} (i.e., why is what you are doing advancing the state-of-the-art)?
+    \item What is your (expected) \emph{contribution} (to addressing the problem)?
+  \end{enumerate}
+  Be as concrete and concise as possible. Aim for clarity with just 4 sentences. This activity is extremely hard, and it is extremely unlikely this will be your final version of your Abstract. But the process of repeatedly trying to get these $\sim$4 sentences to your satisfaction will help you better understand the problem your tackling.
+  \part \textbf{Introduction}. Make an attempt at expanding the sentences of your Abstract into paragraphs in your Introduction. Then, make an attempt to state your (expected) technical contributions as bullets at the end of your Introduction that outline the technical sections of your paper.
+  \part \textbf{Overview Figure}. Make an attempt at the key figure you will use to illustrate (by example) your contribution.
+\end{parts}
+  Take a look at Simon Peyton Jones's ``\href{https://www.microsoft.com/en-us/research/academic-program/write-great-research-paper/}{How to Write a Great Research Paper}''\footnote{Simon Peyton Jones. How to Write a Great Research Paper. \url{https://www.microsoft.com/en-us/research/academic-program/write-great-research-paper/}} for further advice on writing research papers.
+
+\end{questions}
+
+\section{Feedback}
+
+\begin{questions}
+  \question \textbf{Assignment Feedback}. Complete the survey on the linked from the moodle after completing this assignment.  Any non-empty answer
+  will receive full credit for this part.
+%  \question \textbf{Assignment Discussion}. Remember to sign up for a discussion session with your grader once you have received written feedback on your assignment. Engaging in a discussion session will receive full credit for this part.
+\end{questions}
+
+\end{document}
