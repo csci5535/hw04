@@ -5,7 +5,6 @@ This repository contains some minimal OCaml starter files for Homework Assignmen
 ```
 .
 ├── hw04.ml       a template for your submission (if you wish)
-├── hw04.sh       a minimal script to run tests
 └── test_hw04.ml  a template for your tests (if you wish)
 ```
 
@@ -25,10 +24,10 @@ You can build and run tests as follows:
 dune runtest
 ```
 
-Or, the simple top-level script
+Or, the `Makefile``
 
 ```
-./hw04.sh
+make
 ```
 
 simply calls the above.
